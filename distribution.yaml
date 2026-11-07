@@ -1,0 +1,9 @@
+name: poe
+version: 1.0.0
+description: "AI assistant"
+hermes_requires: ">=0.12.0"
+author: "Jaime SL"
+license: "MIT"
+
+# No environment variables are required by this distribution.
+env_requires: []
