@@ -56,3 +56,16 @@ errors.log
 cron/*
 !cron/jobs.json
 skills/.*
+
+# Other
+.curator_backups/
+.skills_prompt_snapshot.json
+.telegram_pairing.json
+.codex_gpt55_autoraise_notice
+desktop/
+runtime/
+projects.db
+*_cache.*
+*.lock
+telegram_update_receipts_*.json
+plugin-update-checks/last-run

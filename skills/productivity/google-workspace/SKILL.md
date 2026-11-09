@@ -292,7 +292,27 @@ $GAPI sheets update SHEET_ID "Sheet1!A1:B2" --values '[["Name","Score"],["Alice"
 $GAPI sheets append SHEET_ID "Sheet1!A:C" --values '[["new","row","data"]]'
 ```
 
-### Docs
+### Google Sheets Datetime Handling (Key Findings)
+
+- **Writing datetimes**: Always write datetime values as ISO 8601 strings (e.g., `2026-11-08 0:00:00`) via `sheets update` or `sheets append` with `USER_ENTERED`. Google Sheets parses these as datetime values and displays them in the cell's number format.
+- **Never raw serials**: Do NOT write raw Excel serials (e.g., `46333.9475806932`) as cell values — Google Sheets does not recognize these as valid datetime cells. This is the #1 cause of the "Invalid: This value does not match the column type date time" error.
+- **Number format is required**: The date picker only works when the cell/column is formatted as a date-time type via `google_api.py sheets batch_update` with `repeatCell` + `userEnteredFormat.numberFormat` (`type: DATE_TIME`, `format: M/D/YYYY H:MM:SS`). Writing the correct value is only half the work — the column must be formatted as date-time type.
+- **Valid datetime formats**: ISO 8601 strings like `2026-11-07 22:34:50.681576+00:00` are parsed by Sheets as datetime values. The display format `M/D/YYYY H:MM:SS` (e.g., `11/8/2026 0:00:00`) is applied via number format.
+- **Common error**: "Invalid: This value does not match the column type date time" means the column cells are not formatted as date-time type — apply the number format via `batch_update` with `repeatCell`.
+- **Google API script**: Use the writable copy at `scripts/productivity/google-workspace/scripts/google_api.py` (the hermetic original at `/opt/hermes/skills/...` is root-owned and unwritable).
+
+### Research Pass Script Configuration
+
+The research script `scripts/research_pass.py` implements the Revolut Research & Holdings workflow:
+
+- **Watchlist**: Reads active tickers (status = true) from the `Watchlist` tab. Columns: ticker, name, sector, notes, status, last_researched.
+- **Research Log**: Appends rows to the `Research Log` tab with 5 columns: date, ticker, sentiment, rationale, sources.
+- **Orders tab**: Columns are `ticker`, `side`, `recommended_price`, `recommended_timestamp`, `executed_amount`, `executed_timestamp`, `executed_price`, `position` (uuid4), `order_id` (uuid4). The `recommended_price` is the estimated price of the stock/ETF in EUR (output by the model). The `executed_amount`, `executed_timestamp`, and `executed_price` columns are left empty for manual entry by the user. Each new order gets a unique `position` (group BUY/SELL) and `order_id` (uuid4).
+- **Sentiment handling**: Every active ticker MUST report a sentiment in the Research Log. If the model output cannot be parsed, write a fallback HOLD row with rationale "Model output could not be parsed. Please review manually." — never silently skip a ticker.
+- **Telegram summary**: At the end of every run, the script sends a Telegram message to the home channel (9238079416) with a detailed summary: ticker, sentiment, timestamp, and one-line reason for each BUY/SELL recommendation. If only HOLD recommendations were generated, the message states that no BUY/SELL recommendations were generated.
+
+### Order Writing
+When writing a new order, generate a UUID4 for `position` (groups BUY/SELL orders) and a UUID4 for `order_id` (unique per order). The model returns `recommended_price` (current price of the stock/ETF in EUR, positive number). The `executed_amount`, `executed_timestamp`, and `executed_price` columns are left empty for manual entry by the user. Use ISO 8601 datetime strings (NOT serial numbers) for all timestamp columns.
 
 ```bash
 # Read (a tabbed Doc returns a "tabs" array; single-tab and legacy Docs also return "body")

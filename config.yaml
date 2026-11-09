@@ -2282,6 +2282,7 @@ display:
 #     shared-metrics directory resets it.
 # See docs/observability/relay-shared-metrics.md (Appendix A) for the full
 # consent, identity, retention, and deletion decisions.
+  language: en
 telemetry:
   shared_metrics:
     enabled: false
@@ -2494,3 +2495,6 @@ fallback_providers:
     model: reflection/beam-1.0-501b-a23b:free
   - provider: nous
     model: stepfun/step-3.7-flash:free
+onboarding:
+  seen:
+    profile_build_offered: true
