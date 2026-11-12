@@ -1,0 +1,51 @@
+jsala@LENOVO-JAIME:~/projects/poe$ docker logs poe-hermes --tail 50
+cont-init: info: running /etc/cont-init.d/01-hermes-setup
+[stage2] dependency environment: current
+[stage2] collected 0 unused dependency generations
+Syncing bundled skills into ~/.hermes/skills/ ...
+
+Done: 0 new, 0 updated, 44 unchanged. 44 total bundled.
+[stage2] Using pinned Chromium binary: /opt/hermes/tools/chromium-1208/chrome-linux64/chrome
+[stage2] Setup complete; starting user services
+cont-init: info: /etc/cont-init.d/01-hermes-setup exited 0
+cont-init: info: running /etc/cont-init.d/015-supervise-perms
+[supervise-perms] chowned supervise/ trees for static s6-rc services
+cont-init: info: /etc/cont-init.d/015-supervise-perms exited 0
+cont-init: info: running /etc/cont-init.d/02-reconcile-profiles
+profiles/default/ exists — skipping to avoid colliding with the reserved root-profile s6 slot
+reconcile: profile=default prior_state=running action=started
+reconcile: profile=poe prior_state=None action=registered
+cont-init: info: /etc/cont-init.d/02-reconcile-profiles exited 0
+s6-rc: info: service legacy-cont-init successfully started
+s6-rc: info: service main-hermes: starting
+s6-rc: info: service dashboard: starting
+s6-rc: info: service main-hermes successfully started
+s6-rc: info: service dashboard successfully started
+s6-rc: info: service legacy-services: starting
+s6-rc: info: service legacy-services successfully started
+Routing to the machine dashboard (profile 'poe' preselected). Use --isolated for a dedicated per-profile server.
+→ gateway is now running under s6 supervision (auto-restart on crash,
+  dashboard supervised alongside if HERMES_DASHBOARD is set).
+  This is the recommended setup for the s6 container image — the
+  gateway will keep running even if it crashes.
+  Use `--no-supervise` (or HERMES_GATEWAY_NO_SUPERVISE=1) to opt out
+  and get the pre-s6 foreground behavior instead.
+┌─────────────────────────────────────────────────────────┐
+│           ☤ Hermes Gateway Starting...                 │
+├─────────────────────────────────────────────────────────┤
+│  Messaging platforms + cron scheduler                    │
+│  Press Ctrl+C to stop                                   │
+└─────────────────────────────────────────────────────────┘
+
+→ Using web dist from HERMES_WEB_DIST: /opt/hermes/hermes_cli/web_dist
+2026-11-09 18:13:29,692 WARNING gateway.lifecycle_ledger: Previous gateway life (pid=189, started_at=2026-11-09T17:59:02.882938+00:00) exited UNCLEANLY (no exit path ran — SIGKILL / OOM / VM death, or a process kill issued by the agent or one of its descendants, e.g. a pkill/taskkill of the host interpreter image; see #113667). last_heartbeat_at=2026-11-09T18:13:04.991897+00:00 last_mem={'rss_kib': 287496, 'mem_total_kib': 26673332, 'mem_available_kib': 23652120, 'swap_used_kib': 0} suspected_oom=False
+2026-11-09 18:13:30,112 WARNING hermes_cli.plugins: Plugin 'basic' tried to register dashboard-auth provider 'basic' from profile scope /opt/data/profiles/poe; ignoring it because dashboard auth is owned by launch scope /opt/data.
+HERMES_DASHBOARD_READY port=9119
+  Hermes Web UI → http://0.0.0.0:9119
+2026-11-09 18:13:32,524 WARNING hermes_plugins.platforms__telegram.adapter: [Telegram] Discovering Telegram API fallback IPs via DNS-over-HTTPS…
+2026-11-09 18:13:32,530 WARNING gateway.platforms.api_server: [Api_Server] API server is network-accessible (0.0.0.0) AND the terminal backend is 'local' (unsandboxed). Agent work dispatched through this endpoint runs as the host user with full terminal/file access. Strongly consider a sandboxed backend (terminal.backend: docker) and firewalling this port to trusted networks only.
+2026-11-09 18:13:32,800 WARNING hermes_plugins.platforms__telegram.adapter: [Telegram] Connecting to Telegram (attempt 1/8)…
+2026-11-09 18:13:43,238 WARNING hermes_plugins.platforms__telegram.adapter: [Telegram] Connected to Telegram (polling mode)
+2026-11-09 18:13:43,575 WARNING hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Discovering Telegram API fallback IPs via DNS-over-HTTPS…
+2026-11-09 18:13:43,710 WARNING hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Connecting to Telegram (attempt 1/8)…
+2026-11-09 18:13:54,112 WARNING hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Connected to Telegram (polling mode)

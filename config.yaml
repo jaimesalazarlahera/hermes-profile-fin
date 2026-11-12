@@ -415,7 +415,6 @@ model:
 # is spawned with the bundled sdlc-review skill and can approve, request changes
 # back to the original implementer, or escalate a genuine external blocker.
 # Disable this only when every review is performed manually from the dashboard.
-  api_mode: chat_completions
 kanban:
   review_dispatch: true
 
@@ -2488,13 +2487,25 @@ platforms:
       name: Jaime Salazar Lahera
       user_id: '9238079416'
 voice:
-  voice_chat_mode: chained
+  voice_chat_mode: "off"
   client_direct: false
-fallback_providers:
-  - provider: nous
-    model: reflection/beam-1.0-501b-a23b:free
-  - provider: nous
-    model: stepfun/step-3.7-flash:free
 onboarding:
   seen:
     profile_build_offered: true
+dashboard:
+  theme: rose
+mcp_servers:
+  trading212:
+    command: uvx
+    args:
+      - --with
+      - mcp<2
+      - --from
+      - trading212-mcp-server==0.4.0
+      - trading212-mcp-server
+    env:
+      TRADING212_API_KEY: ${env:TRADING212_API_KEY}
+      TRADING212_API_SECRET: ${env:TRADING212_API_SECRET}
+      ENVIRONMENT: demo
+web:
+  extract_backend: firecrawl

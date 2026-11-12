@@ -1,0 +1,47 @@
+2026-11-09 17:11:33,032 INFO run_agent: No .env file found. Using system environment variables.
+2026-11-09 17:11:33,615 WARNING tools.mcp_tool: MCP server 'trading212' failed initial connection after 3 attempts, parking until a reconnect is requested (state: connecting → parked): MCPError: Connection closed
+2026-11-09 17:11:33,616 WARNING tools.mcp_tool: Failed to connect to MCP server 'trading212' (command=docker): Connection closed
+child stderr tail (full log: mcp-stderr.log):
+starting MCP server 'trading212' =====
+2026-11-09 17:11:33,612 docker: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?.
+2026-11-09 17:11:33,612 See 'docker run --help'.
+2026-11-09 17:11:33,617 INFO tools.mcp_tool: MCP: registered 0 tool(s) from 0 server(s) (1 failed: trading212 (Connection closed))
+2026-11-09 17:11:33,617 INFO tools.mcp_tool: MCP: 0 tool(s) from 0 server(s) (1 failed: trading212 (Connection closed))
+2026-11-09 17:11:39,432 INFO run_agent: OpenAI client created (agent_init, shared=True) thread=Thread-14 (_build):123158133712576 provider=nous base_url=https://inference-api.nousresearch.com/v1 model=upstage/solar-mini4:free
+2026-11-09 17:11:39,433 INFO run_agent: OpenAI client created (agent_init, shared=True) thread=Thread-13 (_build):123158169376448 provider=nous base_url=https://inference-api.nousresearch.com/v1 model=upstage/solar-mini4:free
+2026-11-09 17:11:39,469 INFO tools.registry: check_fn _browser_cdp_check returned False; dependent tools will be unavailable this turn
+2026-11-09 17:11:39,473 INFO tools.registry: check_fn _browser_dialog_check returned False; dependent tools will be unavailable this turn
+2026-11-09 17:11:39,535 INFO tools.registry: check_fn check_computer_use_requirements returned False; dependent tools will be unavailable this turn
+2026-11-09 17:11:39,551 INFO tools.registry: check_fn check_image_generation_requirements returned False; dependent tools will be unavailable this turn
+2026-11-09 17:11:39,572 INFO tools.registry: check_fn check_react_requirements returned False; dependent tools will be unavailable this turn
+2026-11-09 17:11:39,615 INFO agent.auxiliary_client: Vision auto-detect: using main provider nous (google/gemini-3.6-flash)
+2026-11-09 17:11:39,616 INFO agent.auxiliary_client: Vision auto-detect: using main provider nous (google/gemini-3.6-flash)
+2026-11-09 17:11:39,335 INFO tools.tool_search: tool_search activated (tier 1): 18 core/visible tools kept, 17 deferred (~7157 tokens), listing full (budget ~4000 tokens)
+2026-11-09 17:11:39,335 INFO tools.tool_search: tool_search activated (tier 1): 18 core/visible tools kept, 6 deferred (~4149 tokens), listing full (budget ~4000 tokens)
+2026-11-09 17:11:39,897 WARNING tui_gateway.server: config.yaml has empty section(s): `max_concurrent_sessions`. Remove the line(s) or set them to `{}` — empty sections silently drop nested settings.
+2026-11-09 17:11:40,072 WARNING tui_gateway.server: config.yaml has empty section(s): `max_concurrent_sessions`. Remove the line(s) or set them to `{}` — empty sections silently drop nested settings.
+2026-11-09 17:11:42,467 WARNING tools.mcp_tool: MCP server 'trading212' failed initial connection after 3 attempts, parking until a reconnect is requested (state: connecting → parked): MCPError: Connection closed
+2026-11-09 17:11:42,468 WARNING tools.mcp_tool: Failed to connect to MCP server 'trading212' (command=docker): Connection closed
+child stderr tail (full log: mcp-stderr.log):
+starting MCP server 'trading212' =====
+2026-11-09 17:11:42,463 docker: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?.
+2026-11-09 17:11:42,463 See 'docker run --help'.
+2026-11-09 17:11:42,468 INFO tools.mcp_tool: MCP: registered 0 tool(s) from 0 server(s) (1 failed: trading212 (Connection closed))
+2026-11-09 17:11:42,469 INFO tools.mcp_tool: MCP: 0 tool(s) from 0 server(s) (1 failed: trading212 (Connection closed))
+2026-11-09 17:11:42,472 WARNING tui_gateway.entry: Background MCP discovery completed with zero connected servers
+2026-11-09 17:11:43,780 WARNING tools.mcp_tool: MCP server 'trading212' failed initial connection after 3 attempts, parking until a reconnect is requested (state: connecting → parked): MCPError: Connection closed
+2026-11-09 17:11:45,028 WARNING hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Discovering Telegram API fallback IPs via DNS-over-HTTPS…
+2026-11-09 17:11:45,171 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Auto-discovered Telegram fallback IPs: 149.154.166.110
+2026-11-09 17:11:45,172 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Telegram fallback IPs active: 149.154.166.110
+2026-11-09 17:11:45,174 WARNING hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Connecting to Telegram (attempt 1/8)…
+2026-11-09 17:11:45,318 INFO plugins.platforms.telegram.telegram_network: [Telegram] Using sticky IPv4 Telegram API path 149.154.166.110 (dual-stack hostname tried last — #87015)
+2026-11-09 17:11:45,319 INFO telegram.ext.Application: Application started
+2026-11-09 17:11:45,374 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Cold boot: dropping Telegram updates queued while offline (platforms.telegram.extra.drop_pending_on_cold_boot: true)
+2026-11-09 17:11:55,591 INFO plugins.platforms.telegram.telegram_network: [Telegram] Using sticky IPv4 Telegram API path 149.154.166.110 (dual-stack hostname tried last — #87015)
+2026-11-09 17:11:55,593 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Telegram polling confirmed healthy: getUpdates progressing (generation 1)
+2026-11-09 17:11:55,598 WARNING hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Connected to Telegram (polling mode)
+2026-11-09 17:11:55,963 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] set_my_commands OK for scope BotCommandScopeDefault (60 cmds)
+2026-11-09 17:11:56,053 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] set_my_commands OK for scope BotCommandScopeAllPrivateChats (60 cmds)
+2026-11-09 17:11:56,115 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] set_my_commands OK for scope BotCommandScopeAllGroupChats (60 cmds)
+2026-11-09 17:11:56,115 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Telegram menu: 60 commands registered, 9 hidden (over 60 limit). Use /commands for full list.
+2026-11-09 17:12:06,617 WARNING tools.mcp_tool: MCP server 'trading212' failed initial connection after 3 attempts, parking until a reconnect is requested (state: connecting → parked): MCPError: Connection closed

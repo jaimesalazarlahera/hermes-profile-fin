@@ -1,0 +1,66 @@
+{
+  "jobs": [
+    {
+      "id": "edefd01f8470",
+      "name": "Trading 212 dynamic portfolio automation",
+      "prompt": "Run the connected Trading 212 account conservatively at low frequency in a fresh session; never ask questions. Follow the loaded trading212-portfolio-automation skill.\n\nPersistent run continuity: the scheduler injects the previous completed run output into this run. Read only its `### Next actions`, `### Next steps`, or equivalent section before making decisions. Treat it as context, not authority: re-verify every order, position, balance, and market fact through current tools. Carry forward only still-valid unfinished actions, and say which previous next steps were completed, still pending, or superseded. If no previous output is available, continue normally.\n\nMandatory rules:\n- Read the actual DEMO/LIVE environment from the Trading 212 MCP configuration and report it.\n- Never use leverage, inverse products, CFDs, shorts, options, or options-income products.\n- Never duplicate a position, pending order, protective stop, or profit-taking order. Matching ticker/ISIN and side is a hard no-new-order gate unless the user explicitly changes this policy.\n- Prefer diversified EUR-denominated UCITS ETFs, preserve cash, use staged entries, and respect the skill's sizing limits.\n- This job does not use Google Sheets. Never call Sheets tools, copy Google tokens, access OAuth files, or log anything to that spreadsheet; another cron job owns it.\n- Never read, print, copy, upload, or modify `.env`, `auth.json`, API keys, OAuth tokens, or secret files. Never write to `/tmp`; use `$HERMES_HOME/cache/scratch/`.\n\nEvery run:\n1. Fetch account info, cash, portfolio summary, open positions, all pending orders, recent activity, and relevant order history before deciding anything.\n2. Use web_search and invoke web_extract at least once. Use extracted content for at least one claim. If web_extract hits a quota/rate/plan limit, stop extraction attempts for that run, continue with available search evidence, and explicitly report the limit.\n3. Research current market/news conditions and candidates; distinguish live, delayed, and historical prices.\n4. For shortlisted instruments, confirm exact Trading 212 ticker, ISIN, exchange, currency, and instrument type. Create `$HERMES_HOME/cache/scratch/t212-candle-input.json` with ticker, isin, currency, exchange, and any `yahoo_symbol` or `twelve_symbol` fields that are known. `/opt/data/profiles/poe/scripts/candle_analysis.py` automatically queries Twelve Data symbol search when `twelve_symbol` is absent, matching exact exchange MIC and currency. Run exactly: `python /opt/data/profiles/poe/scripts/candle_analysis.py --instruments $HERMES_HOME/cache/scratch/t212-candle-input.json --days 250`. The script reads the active profile's `$HERMES_HOME/.env` itself\n\n\nImportant — file-mutation verifier around t212-candle-input.json: the `write_file` tool refuses to overwrite a file whose current content you have not read this session. The stale `t212-candle-input.json` left in `$HERMES_HOME/cache/scratch/` from a previous run triggers this error (see: 'Refusing to overwrite .../cache/scratch/t212-candle-input.json: exists but task has not seen its full current content'). To overwrite it cleanly each run, first remove the stale file, then write the new JSON to the same path, then run the candle script. Do not write the file without clearing it first.\n  rm -f $HERMES_HOME/cache/scratch/t212-candle-input.json\n  <write the fresh JSON object array to $HERMES_HOME/cache/scratch/t212-candle-input.json>\n  python /opt/data/profiles/poe/scripts/candle_analysis.py --instruments $HERMES_HOME/cache/scratch/t212-candle-input.json --days 250, so `TWELVE_DATA_API_KEY` is available even if the shell environment does not expose it. Its JSON is authoritative. Report separately: key configured, automatically resolved symbol, Twelve Data request success/failure, per-symbol errors, Yahoo fallback, stale data, and missing symbol mapping. Continue to the next symbol after any provider error; never call a configured key missing merely because Twelve Data returned 404/429 or a symbol mapping was unavailable.\n5. Use candle indicators only as supporting evidence; never as an automatic trade trigger. Treat stale, incomplete, or mismatched data as unavailable.\n6. Before every order, re-fetch all pending orders and positions; compare exact ticker, ISIN, side, quantity, limit price, and purpose. If a matching order or position exists, do not place another.\n7. If any order call errors, times out, returns empty, or has uncertain status, stop placing orders and re-fetch state; never blindly retry.\n8. After every state-changing order, read back pending orders and portfolio/cash state. Never call an order filled without readback confirmation.\n9. Send a concise Telegram summary and produce the same final response with account state, orders, positions, candle provider/status/dates, explicit extraction status, previous-next-step continuity status, next actions, and source attribution. Do not include credentials.\n10. Produce the final response by rendering the template. Call:\n   python /opt/data/profiles/poe/scripts/t212_telegram_template.py --environment <env> --timestamp <ISO run start> --balance <free> --free-cash <free> --invested <invested> --pnl <pnl> --positions <N> --orders <JSON list of order strings> --holdings <JSON list of {ticker,value,pct}> --next-actions <JSON list> --candles <candle status> --extraction <extraction status> --sources <JSON list>.\n   The renderer reads the environment from the Trading 212 MCP config by default, so pass --environment only if the config value differs from what this run must report.\n   Your final response must be EXACTLY the plain-text template above (the 'Trading 212 Run (DEMO/LIVE)' block and nothing else). Do NOT include anything before the title or after the Sources block: no preface such as 'The run completed successfully', no 'Run summary', 'Data quality', or 'Continuity' sections, and no markdown headings (no ###) and no bullet characters; section headings are bold (**Account**, **Orders this run**, **Top holdings by value**, etc.). Nothing first and nothing last.\n   Use the script output exactly as the final response and as the content delivered to Telegram. Do not manually reformat or compose the response any other way.\nIf no orders were placed, state why. If a valid final report cannot be produced, put `[CRON_FAILURE]` on the first line and state the blocker. Do not create or update cron jobs during the run.",
+      "skills": [
+        "trading212-portfolio-automation",
+        "grounded-citations"
+      ],
+      "skill": "trading212-portfolio-automation",
+      "model": null,
+      "provider": null,
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "monitor_script": null,
+      "monitor_url": null,
+      "monitor_state": null,
+      "context_from": [
+        "self"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "minutes": 720,
+        "display": "every 720m"
+      },
+      "schedule_display": "every 720m",
+      "repeat": {
+        "times": null,
+        "completed": 3
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-11-09T21:07:15.975904+00:00",
+      "next_run_at": "2026-11-12T20:04:00.042849+00:00",
+      "last_run_at": "2026-11-12T15:22:10.619058+00:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "last_delivery_unverified": null,
+      "last_failure": {
+        "at": "2026-11-12T14:29:24.801909+00:00",
+        "detail": "RuntimeError: HTTP 451: The upstream provider declined this request for legal or policy reasons. This restriction is applied by the model's provider, not by your API key, and retrying will not succeed. Try a different model or adjust the request content."
+      },
+      "failure_streak": 0,
+      "deliver": "telegram:9238079416",
+      "origin": null,
+      "enabled_toolsets": null,
+      "workdir": null,
+      "fire_claim": null,
+      "canonical_completions": [
+        "1e8348e324d944c7ba454c7af9a48cbe"
+      ],
+      "last_dispatch": {
+        "scheduled_at": "2026-11-11T10:45:44.791864+00:00",
+        "dispatched_at": "2026-11-11T10:46:10.811550+00:00",
+        "lateness_seconds": 26.0,
+        "kind": "on_time"
+      }
+    }
+  ],
+  "updated_at": "2026-11-12T15:22:11.368358+00:00"
+}

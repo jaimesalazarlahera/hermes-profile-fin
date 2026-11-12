@@ -1,0 +1,23 @@
+2026-11-09 17:59:14,375 INFO agent.auxiliary_client: Vision auto-detect: using main provider nous (google/gemini-3.6-flash)
+2026-11-09 17:59:14,532 INFO tools.tool_search: tool_search activated (tier 1): 18 core/visible tools kept, 38 deferred (~11062 tokens), listing full (budget ~4000 tokens)
+2026-11-09 17:59:14,771 WARNING tui_gateway.server: config.yaml has empty section(s): `max_concurrent_sessions`. Remove the line(s) or set them to `{}` — empty sections silently drop nested settings.
+2026-11-09 17:59:15,993 WARNING hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Discovering Telegram API fallback IPs via DNS-over-HTTPS…
+2026-11-09 17:59:16,067 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Auto-discovered Telegram fallback IPs: 149.154.166.110
+2026-11-09 17:59:16,068 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Telegram fallback IPs active: 149.154.166.110
+2026-11-09 17:59:16,071 WARNING hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Connecting to Telegram (attempt 1/8)…
+2026-11-09 17:59:16,226 INFO plugins.platforms.telegram.telegram_network: [Telegram] Using sticky IPv4 Telegram API path 149.154.166.110 (dual-stack hostname tried last — #87015)
+2026-11-09 17:59:16,227 INFO telegram.ext.Application: Application started
+2026-11-09 17:59:16,277 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Cold boot: dropping Telegram updates queued while offline (platforms.telegram.extra.drop_pending_on_cold_boot: true)
+2026-11-09 17:59:19,310 INFO run_agent: OpenAI client created (agent_init, shared=True) thread=Thread-17 (_build):126885150226112 provider=nous base_url=https://inference-api.nousresearch.com/v1 model=upstage/solar-mini4:free
+2026-11-09 17:59:20,390 WARNING tui_gateway.server: config.yaml has empty section(s): `max_concurrent_sessions`. Remove the line(s) or set them to `{}` — empty sections silently drop nested settings.
+2026-11-09 17:59:21,678 INFO run_agent: OpenAI client created (agent_init, shared=True) thread=Thread-18 (_build):126885175404224 provider=nous base_url=https://inference-api.nousresearch.com/v1 model=upstage/solar-mini4:free
+2026-11-09 17:59:21,731 INFO tools.registry: check_fn check_react_requirements returned False; dependent tools will be unavailable this turn
+2026-11-09 17:59:21,795 INFO tools.tool_search: tool_search activated (tier 1): 18 core/visible tools kept, 49 deferred (~14069 tokens), listing full (budget ~4000 tokens)
+2026-11-09 17:59:22,212 WARNING tui_gateway.server: config.yaml has empty section(s): `max_concurrent_sessions`. Remove the line(s) or set them to `{}` — empty sections silently drop nested settings.
+2026-11-09 17:59:26,468 INFO plugins.platforms.telegram.telegram_network: [Telegram] Using sticky IPv4 Telegram API path 149.154.166.110 (dual-stack hostname tried last — #87015)
+2026-11-09 17:59:26,470 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Telegram polling confirmed healthy: getUpdates progressing (generation 1)
+2026-11-09 17:59:26,473 WARNING hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Connected to Telegram (polling mode)
+2026-11-09 17:59:27,020 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] set_my_commands OK for scope BotCommandScopeDefault (60 cmds)
+2026-11-09 17:59:27,153 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] set_my_commands OK for scope BotCommandScopeAllPrivateChats (60 cmds)
+2026-11-09 17:59:27,237 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] set_my_commands OK for scope BotCommandScopeAllGroupChats (60 cmds)
+2026-11-09 17:59:27,238 INFO hermes_plugins.platforms__telegram__home_7e998c71645f.adapter: [Telegram] Telegram menu: 60 commands registered, 9 hidden (over 60 limit). Use /commands for full list.
