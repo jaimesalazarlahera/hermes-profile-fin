@@ -106,6 +106,46 @@ def _auto_twelve_symbol(instrument: dict[str, Any]) -> str | None:
     return None
 
 
+def _auto_yahoo_symbol(instrument: dict[str, Any]) -> str | None:
+    """Resolve a Yahoo symbol from the exact Trading 212 ticker and venue."""
+    ticker = str(instrument.get("ticker") or "")
+    query = str(instrument.get("provider_symbol_hint") or ticker.split("_", 1)[0])
+    if query and query[-1:].islower() and query[:-1].isupper():
+        query = query[:-1]
+    if not query:
+        return None
+    exchange = _normalise_exchange(str(instrument.get("exchange") or ""))
+    yahoo_exchanges = {"XETR": {"GER", "FRA"}, "XFRA": {"GER", "FRA"}, "XAMS": {"AMS"}, "XMIL": {"MIL"}}
+    expected = yahoo_exchanges.get(exchange, set())
+    currency = str(instrument.get("currency") or "").upper()
+    preferred_suffixes = (".DE", ".MI", ".PA", ".AS", ".BR", ".SW") if currency == "EUR" else ()
+    params = urllib.parse.urlencode({"q": query, "quotesCount": 20, "newsCount": 0})
+    try:
+        request = urllib.request.Request(
+            f"https://query2.finance.yahoo.com/v1/finance/search?{params}",
+            headers={"User-Agent": USER_AGENT},
+        )
+        obj = json.loads(urllib.request.urlopen(request, timeout=20).read().decode("utf-8"))
+    except (OSError, ValueError, urllib.error.URLError):
+        return None
+    quotes = obj.get("quotes", [])
+    matching = []
+    for quote in quotes:
+        symbol = str(quote.get("symbol") or "")
+        if not symbol.upper().startswith(query.upper() + "."):
+            continue
+        if expected and quote.get("exchange") not in expected:
+            continue
+        matching.append(symbol)
+    if preferred_suffixes:
+        for suffix in preferred_suffixes:
+            for symbol in matching:
+                if symbol.upper().endswith(suffix):
+                    return symbol
+        return None
+    return matching[0] if matching else None
+
+
 def _cache_path(cache_dir: pathlib.Path, provider: str, symbol: str) -> pathlib.Path:
     key = hashlib.sha256(f"{provider}:{symbol}".encode()).hexdigest()[:24]
     return cache_dir / f"{provider}-{key}.json"
@@ -230,10 +270,11 @@ def analyze(instrument: dict[str, Any], cache_dir: pathlib.Path, days: int) -> d
     isin = instrument.get("isin")
     currency = instrument.get("currency")
     exchange = instrument.get("exchange")
-    if not all(isinstance(x, str) and x.strip() for x in (ticker, isin, currency, exchange)):
-        return {"status": "unresolved", "ticker": ticker, "error": "ticker, isin, currency, and exchange are required"}
+    if not all(isinstance(x, str) and x.strip() for x in (ticker, isin, currency)):
+        return {"status": "unresolved", "ticker": ticker, "error": "ticker, isin, and currency are required"}
     twelve_symbol = instrument.get("twelve_symbol") or _auto_twelve_symbol(instrument)
-    providers = [("twelve_data", twelve_symbol, fetch_twelve_data), ("yahoo", instrument.get("yahoo_symbol"), fetch_yahoo)]
+    yahoo_symbol = instrument.get("yahoo_symbol") or _auto_yahoo_symbol(instrument)
+    providers = [("twelve_data", twelve_symbol, fetch_twelve_data), ("yahoo", yahoo_symbol, fetch_yahoo)]
     errors = []
     for provider, symbol, fetcher in providers:
         if not symbol:

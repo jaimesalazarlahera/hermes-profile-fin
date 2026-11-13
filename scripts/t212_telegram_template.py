@@ -53,11 +53,61 @@ def _fmt_money_full(value):
         return "0.00"
 
 
-def _orders_block(orders):
+def _orders_block(orders, *, pending=False):
     """Plain-text list of orders, or the 'none placed' line."""
     if not orders:
         return "New: none placed this run."
-    return "\n".join(orders)
+    lines = []
+    for order in orders:
+        if isinstance(order, dict):
+            status = order.get("status", "" if pending else "")
+            if pending and str(status).upper() == "NEW":
+                status = "PENDING"
+            ticker = _strip_ticker_suffix(order.get("ticker", ""))
+            quantity = order.get("quantity", order.get("quantityExecuted", ""))
+            limit_price = order.get("limit_price", order.get("limitPrice", ""))
+            order_id = order.get("id", order.get("orderId", ""))
+            created_at = order.get("created_at", order.get("createdAt"))
+            try:
+                lp = float(limit_price) if limit_price else 0.0
+            except (TypeError, ValueError):
+                lp = 0.0
+            if pending:
+                since = f" Since: {created_at[:16] if len(created_at) > 16 else created_at}" if created_at else ""
+                lines.append(f"{ticker}: BUY {quantity} @ {lp:.2f} (#{order_id} from {created_at[:16] if created_at else ''})")
+            elif created_at:
+                created = created_at[:16] if len(created_at) > 16 else created_at
+                lines.append(f"{status} {ticker} BUY {quantity} @ €{lp:.2f} (#{order_id} from {created})")
+            else:
+                lines.append(f"{status} {ticker} BUY {quantity} @ €{lp:.2f} (#{order_id})")
+        else:
+            lines.append(str(order))
+    return "\n".join(lines)
+
+
+def _strip_ticker_suffix(ticker: str) -> str:
+    """Strip the distribution suffix from a Trading 212 ticker.
+
+    Trading 212 ticker suffixes:
+      d_EQ / l_EQ = distributing
+      m_EQ / a_EQ = accumulating
+    Returns the ticker without the distribution suffix.
+    """
+    if not ticker:
+        return ticker
+    upper = ticker.upper()
+    if not upper.endswith("_EQ"):
+        # Handle tickers that don't have the _EQ suffix but still have a
+        # distribution suffix character at the end (e.g. "VWCEd" -> "VWCE")
+        if upper and upper[-1] in "DLMA":
+            return ticker[:-1]
+        return ticker
+    # Strip the _EQ part to get the raw ticker name (e.g. "VWCEd" from "VWCEd_EQ")
+    raw = upper[:upper.rfind("_EQ")]
+    # Strip the distribution/accumulation suffix character if present
+    if raw and raw[-1] in "DLMA":
+        raw = raw[:-1]
+    return ticker[:len(raw)] if raw else ticker
 
 
 def _holdings_block(holdings):
@@ -88,7 +138,8 @@ def _sources_block(sources):
 
 
 def render(env, timestamp, balance, free_cash, invested, pnl, positions,
-           orders, holdings, next_actions, candles, extraction, sources):
+           orders, pending_orders, next_actions, candles, extraction, sources,
+           llm_timed_out=False):
     env = env or _read_env_from_config()
     title = "Trading 212 Run ({env}) - {timestamp}".format(env=env, timestamp=timestamp)
 
@@ -104,6 +155,11 @@ def render(env, timestamp, balance, free_cash, invested, pnl, positions,
         )
     )
     lines.append("Open positions: {}".format(positions))
+    lines.append("**Open orders**")
+    if pending_orders:
+        lines.append(_orders_block(pending_orders, pending=True))
+    else:
+        lines.append("None")
     lines.append("")
 
     lines.append("**Orders this run**")
@@ -113,22 +169,44 @@ def render(env, timestamp, balance, free_cash, invested, pnl, positions,
         lines.append("New: none placed this run.")
     lines.append("")
 
-    lines.append("**Top holdings by value**")
-    if holdings:
-        lines.append(_holdings_block(holdings))
-    else:
-        lines.append("None (0 open positions; 0 filled).")
-    lines.append("")
-
     lines.append("**Next actions**")
     if next_actions:
         lines.append(_next_actions_block(next_actions))
     lines.append("")
 
-    lines.append("**Data quality**")
-    lines.append("Candles: {}".format(candles))
-    lines.append("Extraction: {}".format(extraction))
+    lines.append("**Research**")
+    flat_candles = {}
+    if isinstance(candles, dict):
+        for key, data in candles.items():
+            if key == "pending_orders" and isinstance(data, dict):
+                flat_candles.update(data)
+            else:
+                flat_candles[key] = data
+    resolved = 0
+    candle_issues = []
+    for symbol, data in flat_candles.items():
+        if isinstance(data, dict) and data.get("resolved"):
+            resolved += 1
+        else:
+            error = data.get("error", "no candle data") if isinstance(data, dict) else str(data)
+            candle_issues.append(f"{symbol}: {error}")
+    if isinstance(candles, dict):
+        lines.append(f"- Candles: resolved for {resolved} tickers")
+    else:
+        lines.append(f"- Candles: {candles}")
+    if candle_issues:
+        lines.append("- Candle issues: " + "; ".join(candle_issues))
+    extraction_text = str(extraction)
+    lines.append(f"- Extraction: {extraction_text}")
+    if extraction_text.lower() not in {"succeeded", "success"}:
+        lines.append("- Extraction issue: research extraction did not complete normally")
     lines.append("")
+
+    if llm_timed_out:
+        lines.append("**LLM selector warning**")
+        lines.append("- Warning: the LLM selector timed out after 600 seconds; falling back to empty candidates.")
+        lines.append("- This means no new orders could be generated this run. Please re-run a future cycle.")
+        lines.append("")
 
     lines.append("**Sources**")
     if sources:
@@ -136,7 +214,6 @@ def render(env, timestamp, balance, free_cash, invested, pnl, positions,
     lines.append("")
 
     return "\n".join(lines)
-
 
 def _json_list(value):
     if not value:
@@ -157,7 +234,6 @@ def main(argv=None):
     parser.add_argument("--pnl", type=float, required=True)
     parser.add_argument("--positions", type=int, required=True)
     parser.add_argument("--orders", help="JSON list of order strings")
-    parser.add_argument("--holdings", help="JSON list of {ticker,value,pct} objects")
     parser.add_argument("--next-actions", help="JSON list of action strings")
     parser.add_argument("--candles", required=True, help="candle provider status string")
     parser.add_argument("--extraction", required=True, help="extraction status + source string")
@@ -166,7 +242,6 @@ def main(argv=None):
 
     env = args.environment or _read_env_from_config()
     orders = _json_list(args.orders)
-    holdings = _json_list(args.holdings)
     next_actions = _json_list(args.next_actions)
     sources = _json_list(args.sources)
 
@@ -179,7 +254,7 @@ def main(argv=None):
         pnl=args.pnl,
         positions=args.positions,
         orders=orders,
-        holdings=holdings,
+        positions_list=orders,
         next_actions=next_actions,
         candles=args.candles,
         extraction=args.extraction,

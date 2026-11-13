@@ -40,14 +40,14 @@ python "$HERMES_HOME/scripts/candle_analysis.py" \
   --days 250
 ```
 
-Each input object must include exact Trading 212 identity fields. Provider symbols are optional because the collector can resolve Twelve Data symbols automatically from the exact exchange MIC and currency:
+Each input object must include the exact Trading 212 ticker, ISIN, and currency. Exchange is preferred when Trading 212 supplies it; account/order records may omit exchange, in which case the collector must resolve a provider venue from metadata/search and enforce a currency-compatible listing rather than guessing a suffix:
 
 ```json
 {
   "ticker": "<Trading 212 ticker>",
   "isin": "<ISIN>",
   "currency": "EUR",
-  "exchange": "<exchange>",
+  "exchange": "<optional exchange>",
   "twelve_symbol": "<optional verified symbol:MIC>",
   "yahoo_symbol": "<optional verified Yahoo symbol>"
 }
