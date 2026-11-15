@@ -6,10 +6,12 @@ import os
 import re
 import subprocess
 import sys
+from pathlib import Path
 
 PYTHON = "/opt/hermes/.venv/bin/python"
-ROOT = "/opt/data/profiles/poe/scripts"
-CONFIG = "/opt/data/profiles/poe/config.yaml"
+PROFILE_HOME = Path(os.environ.get("HERMES_HOME", "/opt/data"))
+ROOT = PROFILE_HOME / "scripts"
+CONFIG = PROFILE_HOME / "config.yaml"
 
 
 def environment() -> str:

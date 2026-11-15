@@ -74,7 +74,7 @@ def configured_environment() -> str:
     configured = os.environ.get("T212_ENVIRONMENT", "").strip()
     if configured:
         return configured
-    config_path = Path(os.environ.get("HERMES_HOME", "/opt/data/profiles/poe")) / "config.yaml"
+    config_path = Path(os.environ.get("HERMES_HOME", "/opt/data")) / "config.yaml"
     try:
         text = config_path.read_text(encoding="utf-8")
     except OSError:
@@ -282,41 +282,51 @@ def build_llm_prompt(state: dict[str, Any], research: Any, existing_tickers: set
         "  SOURCE 2 (research candidates): new tickers from web_search + news/trends analysis.\n"
         "Only select tickers that appear in the SOURCES below. Do not invent tickers or use symbols from memory. "
         "Never choose leverage, inverse, CFD, short, or options products. "
-        "Return JSON only, with exactly this schema, and observe these hard constraints:\n"
-        "  - price MUST be a number > 0\n"
-        "  - allocation_pct MUST be a number > 0 (use a value between 0 and 1 for staged tranches, or > 1 for a full tranche).\n"
-        "  - Only select tickers from the SOURCES below.\n"
-        "  - If you cannot produce a candidate that meets these rules, return {\"candidates\": []}.\n"
-        "  - Do not return any candidate that violates these rules.\n"
-        "Return JSON only, with exactly this schema; allocation_pct is a fraction of the first staged tranche.\n"
+        "Return JSON only, with exactly this schema; allocation_pct is a fraction of the first staged tranche. Constraints: price MUST be a number > 0; allocation_pct MUST be a number > 0; only select tickers from SOURCE 1 or SOURCE 2; if you cannot produce a candidate, return {'candidates': []}."
         f"SCHEMA={json.dumps(contract, separators=(',', ':'))}\n"
         f"SOURCE 1 (existing positions + pending orders in your Trading 212 account):\n{existing_str}\n"
-        f"SOURCE 2 (research candidates):\n{research}\n"
-        f"SOURCES={json.dumps(sorted(existing_tickers))}"
+        f"SOURCE 2 (research candidates):\n{research}"
+
     )
 
 
-def call_llm(prompt: str, command: str) -> list[Candidate]:
-    try:
-        completed = subprocess.run(
-            command, shell=True, input=prompt, check=False,
-            capture_output=True, text=True, timeout=600,
-        )
-    except subprocess.TimeoutExpired as exc:
-        partial = exc.stdout or exc.stderr or "<no partial selector output>"
-        if isinstance(partial, bytes):
-            partial = partial.decode("utf-8", errors="replace")
-        # Fallback: if the selector timed out, return an empty candidate list
-        # rather than crashing the whole pipeline. The report will show
-        # "New: none placed this run." and the pipeline continues.
-        print(f"  [t212] LLM selector timed out after 600s, falling back to empty candidates.", file=sys.stderr)
-        return []
-    if completed.returncode:
-        detail = completed.stderr.strip() or completed.stdout.strip() or 'unknown selector error'
-        raise ProposalError(f"LLM command failed: {detail[-1000:]}")
-    return parse_llm_proposal(completed.stdout)
+def call_llm(prompt: str, command: str, max_attempts: int = 4, base_delay: float = 5.0) -> list[Candidate]:
+    """Call the LLM selector with retry/back-off for slow or transient failures.
 
-
+    Trading 212's free-tier LLM selector (Nous API) can be slow under load.
+    Retry with exponential back-off (5s, 10s, 20s) instead of failing on
+    the first timeout.
+    """
+    for attempt in range(1, max_attempts + 1):
+        try:
+            completed = subprocess.run(
+                command, shell=True, input=prompt, check=False,
+                capture_output=True, text=True, timeout=600,
+            )
+            if completed.returncode:
+                detail = completed.stderr.strip() or completed.stdout.strip() or 'unknown selector error'
+                raise ProposalError(f"LLM command failed: {detail[-1000:]}")
+            return parse_llm_proposal(completed.stdout)
+        except subprocess.TimeoutExpired as exc:
+            partial = exc.stdout or exc.stderr or "<no partial selector output>"
+            if isinstance(partial, bytes):
+                partial = partial.decode("utf-8", errors="replace")
+            print(f"  [t212] LLM selector timed out (attempt {attempt}/{max_attempts})", file=sys.stderr)
+            if attempt < max_attempts:
+                wait = base_delay * (2 ** (attempt - 1))
+                wait = min(wait, 30.0)
+                print(f"  [t212] Retrying in {wait:.1f}s...", file=sys.stderr)
+                import time
+                time.sleep(wait)
+        except ProposalError as exc:
+            if attempt < max_attempts:
+                wait = base_delay * (2 ** (attempt - 1))
+                wait = min(wait, 30.0)
+                print(f"  [t212] LLM proposal error (attempt {attempt}/{max_attempts}): {exc}; retrying in {wait:.1f}s", file=sys.stderr)
+                import time
+                time.sleep(wait)
+            else:
+                raise
 def _decode_json_stream(text: str) -> Any:
     decoder = json.JSONDecoder()
     index = 0
@@ -582,7 +592,7 @@ async def _instrument_is_tradable(session: Any, candidate: Candidate) -> bool:
 async def run_pipeline(args: argparse.Namespace) -> str:
     from mcp.client.stdio import StdioServerParameters, stdio_client
 
-    home = Path(os.environ.get("HERMES_HOME", "/opt/data/profiles/poe"))
+    home = Path(os.environ.get("HERMES_HOME", "/opt/data"))
     binary = home / ".t212venv" / "bin" / "trading212-mcp-server"
     env = dict(os.environ)
     env.setdefault("ENVIRONMENT", configured_environment())

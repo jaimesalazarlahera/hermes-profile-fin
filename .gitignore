@@ -12,6 +12,7 @@ response_store.db
 response_store.db-shm
 response_store.db-wal
 gateway.pid
+gateway.lock
 gateway_state.json
 processes.json
 auth.lock
@@ -19,7 +20,9 @@ active_profile
 .update_check
 
 # User data — NEVER commit
-memories/
+memories/*
+!memories/MEMORY.md
+!memories/USER.md
 sessions/
 logs/
 plans/

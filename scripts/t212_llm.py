@@ -26,8 +26,9 @@ def extract_object(text: str) -> dict:
 
 def call_hermes(prompt: str) -> str:
     env = dict(os.environ)
-    env["HERMES_HOME"] = "/opt/data/profiles/poe"
-    env["HOME"] = "/opt/data/profiles/poe"
+    profile_home = env.get("HERMES_HOME", "/opt/data")
+    env["HERMES_HOME"] = profile_home
+    env["HOME"] = env.get("HOME", os.path.join(profile_home, "home"))
     env["PATH"] = "/opt/hermes/bin:/opt/hermes/.venv/bin:" + env.get("PATH", "")
     try:
         completed = subprocess.run(

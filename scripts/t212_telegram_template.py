@@ -13,10 +13,12 @@ nothing before the title and nothing after the Sources block.
 
 import argparse
 import json
+import os
 import re
 import sys
+from pathlib import Path
 
-CONFIG_PATH = "/opt/data/profiles/poe/config.yaml"
+CONFIG_PATH = Path(os.environ.get("HERMES_HOME", "/opt/data")) / "config.yaml"
 
 
 def _read_env_from_config(config_path=CONFIG_PATH):
@@ -97,10 +99,7 @@ def _strip_ticker_suffix(ticker: str) -> str:
         return ticker
     upper = ticker.upper()
     if not upper.endswith("_EQ"):
-        # Handle tickers that don't have the _EQ suffix but still have a
-        # distribution suffix character at the end (e.g. "VWCEd" -> "VWCE")
-        if upper and upper[-1] in "DLMA":
-            return ticker[:-1]
+        # Already a clean ticker — no suffix to strip
         return ticker
     # Strip the _EQ part to get the raw ticker name (e.g. "VWCEd" from "VWCEd_EQ")
     raw = upper[:upper.rfind("_EQ")]
@@ -191,7 +190,7 @@ def render(env, timestamp, balance, free_cash, invested, pnl, positions,
             error = data.get("error", "no candle data") if isinstance(data, dict) else str(data)
             candle_issues.append(f"{symbol}: {error}")
     if isinstance(candles, dict):
-        lines.append(f"- Candles: resolved for {resolved} tickers")
+        lines.append(f"- Candles: resolved for {resolved} ticker{'s' if resolved != 1 else ''}")
     else:
         lines.append(f"- Candles: {candles}")
     if candle_issues:

@@ -18,7 +18,7 @@ import os
 import sys
 from typing import Any
 
-os.environ.setdefault("HERMES_HOME", "/opt/data/profiles/poe")
+os.environ.setdefault("HERMES_HOME", "/opt/data")
 sys.path.insert(0, "/opt/hermes")
 from tools.web_tools import web_extract_tool, web_search_tool  # noqa: E402
 
