@@ -2,6 +2,7 @@
 """Single bounded LLM adapter for the portfolio candidate selector."""
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import subprocess
@@ -24,15 +25,20 @@ def extract_object(text: str) -> dict:
     raise ValueError("LLM did not return a candidates JSON object")
 
 
-def call_hermes(prompt: str) -> str:
+def call_hermes(prompt: str, model: str | None = None, provider: str | None = None) -> str:
     env = dict(os.environ)
     profile_home = env.get("HERMES_HOME", "/opt/data")
     env["HERMES_HOME"] = profile_home
     env["HOME"] = env.get("HOME", os.path.join(profile_home, "home"))
     env["PATH"] = "/opt/hermes/bin:/opt/hermes/.venv/bin:" + env.get("PATH", "")
+    command = [HERMES, "chat", "--query-file", "-", "--oneshot", "-Q", "--format", "text", "--max-turns", "10"]
+    if model:
+        command.extend(["--model", model])
+    if provider:
+        command.extend(["--provider", provider])
     try:
         completed = subprocess.run(
-            [HERMES, "chat", "--query-file", "-", "--oneshot", "-Q", "--format", "text", "--max-turns", "10"],
+            command,
             input=prompt, capture_output=True, text=True, env=env, timeout=300, check=True,
         )
         return completed.stdout
@@ -41,7 +47,11 @@ def call_hermes(prompt: str) -> str:
         return exc.stdout or exc.stderr or ""
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--model", default=os.environ.get("T212_SELECTOR_MODEL"))
+    parser.add_argument("--provider", default=os.environ.get("T212_SELECTOR_PROVIDER"))
+    args = parser.parse_args(argv)
     prompt = sys.stdin.read()
     if not prompt.strip():
         raise SystemExit("empty selector prompt")
@@ -50,7 +60,7 @@ def main() -> int:
         "tool calls, or additional keys. If evidence is insufficient, return "
         '{"candidates":[]}.'
     )
-    text = call_hermes(prompt)
+    text = call_hermes(prompt, model=args.model, provider=args.provider)
     try:
         candidate = extract_object(text)
     except ValueError:

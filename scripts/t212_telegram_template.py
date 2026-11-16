@@ -138,7 +138,7 @@ def _sources_block(sources):
 
 def render(env, timestamp, balance, free_cash, invested, pnl, positions,
            orders, pending_orders, next_actions, candles, extraction, sources,
-           llm_timed_out=False):
+           llm_timed_out=False, llm_judgment="Success"):
     env = env or _read_env_from_config()
     title = "Trading 212 Run ({env}) - {timestamp}".format(env=env, timestamp=timestamp)
 
@@ -199,6 +199,7 @@ def render(env, timestamp, balance, free_cash, invested, pnl, positions,
     lines.append(f"- Extraction: {extraction_text}")
     if extraction_text.lower() not in {"succeeded", "success"}:
         lines.append("- Extraction issue: research extraction did not complete normally")
+    lines.append(f"- LLM judgment: {llm_judgment}")
     lines.append("")
 
     if llm_timed_out:

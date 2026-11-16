@@ -564,13 +564,14 @@ def _report_inputs(state: dict[str, Any], results: list[dict[str, Any]], plan: O
     }
 
 
-def render_report(state: dict[str, Any], results: list[dict[str, Any]], plan: OrderPlan, research: Any, candles: Any, environment: str, llm_timed_out: bool = False) -> str:
+def render_report(state: dict[str, Any], results: list[dict[str, Any]], plan: OrderPlan, research: Any, candles: Any, environment: str, llm_timed_out: bool = False, llm_judgment: str = "Success") -> str:
     try:
         from scripts.t212_telegram_template import render
     except ModuleNotFoundError:
         from t212_telegram_template import render
     values = _report_inputs(state, results, plan, research, candles)
     values["llm_timed_out"] = llm_timed_out
+    values["llm_judgment"] = llm_judgment
     return render(environment, dt.datetime.now(dt.timezone.utc).isoformat(), **values)
 
 
@@ -640,12 +641,14 @@ async def run_pipeline(args: argparse.Namespace) -> str:
             # All candidates from both sources
             prompt = build_llm_prompt(state, research, existing_tickers)
             llm_timed_out = False
+            llm_judgment = "Success"
             try:
                 candidates = call_llm(prompt, args.llm_command)
-            except Exception:
+            except Exception as exc:
                 # call_llm already prints a warning to stderr and returns empty list
                 # on timeout; record that we fell back to empty candidates
-                llm_timed_out = True
+                llm_timed_out = isinstance(exc, subprocess.TimeoutExpired)
+                llm_judgment = f"Failed: {str(exc).strip() or exc.__class__.__name__}"
                 candidates = []
             # Validate every research candidate against the cached catalogue before
             # it can enter sizing or order execution.
@@ -687,7 +690,7 @@ async def run_pipeline(args: argparse.Namespace) -> str:
             account_instruments = _account_candle_instruments(state, catalog)
             candles = await _resolve_candles(session, new_candidates, plan, account_instruments, catalog)
             results = await execute_orders(session, plan, execute=args.execute)
-            report = render_report(state, results, plan, research, candles, args.environment.upper(), llm_timed_out)
+            report = render_report(state, results, plan, research, candles, args.environment.upper(), llm_timed_out, llm_judgment)
         except BaseException as exc:
             print(f"t212 runner stopped: {exc}", file=sys.stderr)
             raise
