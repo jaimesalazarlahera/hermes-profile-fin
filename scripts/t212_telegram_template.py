@@ -74,14 +74,22 @@ def _orders_block(orders, *, pending=False):
                 lp = float(limit_price) if limit_price else 0.0
             except (TypeError, ValueError):
                 lp = 0.0
+            side = str(order.get("side", "")).upper()
+            try:
+                numeric_quantity = float(quantity) if quantity else 0.0
+            except (TypeError, ValueError):
+                numeric_quantity = 0.0
+            if not side:
+                side = "SELL" if numeric_quantity < 0 else "BUY"
+            quantity = abs(numeric_quantity) if numeric_quantity else quantity
             if pending:
                 since = f" Since: {created_at[:16] if len(created_at) > 16 else created_at}" if created_at else ""
-                lines.append(f"{ticker}: BUY {quantity} @ {lp:.2f} (#{order_id} from {created_at[:16] if created_at else ''})")
+                lines.append(f"{ticker}: {side} {quantity} @ {lp:.2f} (#{order_id} from {created_at[:16] if created_at else ''})")
             elif created_at:
                 created = created_at[:16] if len(created_at) > 16 else created_at
-                lines.append(f"{status} {ticker} BUY {quantity} @ €{lp:.2f} (#{order_id} from {created})")
+                lines.append(f"{status} {ticker} {side} {quantity} @ €{lp:.2f} (#{order_id} from {created})")
             else:
-                lines.append(f"{status} {ticker} BUY {quantity} @ €{lp:.2f} (#{order_id})")
+                lines.append(f"{status} {ticker} {side} {quantity} @ €{lp:.2f} (#{order_id})")
         else:
             lines.append(str(order))
     return "\n".join(lines)

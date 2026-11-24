@@ -7,7 +7,7 @@
 # Schema version of this file. The installers copy it to seed config.yaml, and
 # `hermes update` uses it to know which one-time migrations the file already
 # has. Hermes manages it: do not copy it into another config.
-_config_version: 52
+_config_version: 53
 
 # =============================================================================
 # Database Configuration
@@ -78,7 +78,7 @@ plugins:
 model:
   # Default model to use (can be overridden with --model flag)
   # Both "default" and "model" work as the key name here.
-  default: "upstage/solar-mini4:free"
+  default: "gpt-5.6-luna"
 
   # Inference provider selection:
   #   "auto"         - Auto-detect from credentials (default)
@@ -110,11 +110,11 @@ model:
   #   It works with both no-auth and auth-enabled server modes.
   #
   # Can also be overridden for a single invocation with the --provider flag.
-  provider: "nous"
+  provider: "openai-codex"
 
   # API configuration (falls back to OPENROUTER_API_KEY env var)
   # api_key: "your-key-here"  # Uncomment to set here instead of .env
-  base_url: "https://inference-api.nousresearch.com/v1"
+  base_url: "https://chatgpt.com/backend-api/codex"
 
   # Stream API responses from the provider (default: true). The agent core
   # prefers streaming for every turn — subagents included — for liveness
@@ -415,6 +415,7 @@ model:
 # is spawned with the bundled sdlc-review skill and can approve, request changes
 # back to the original implementer, or escalate a genuine external blocker.
 # Disable this only when every review is performed manually from the dashboard.
+  api_mode: codex_responses
 kanban:
   review_dispatch: true
 
@@ -2493,7 +2494,7 @@ onboarding:
   seen:
     profile_build_offered: true
 dashboard:
-  theme: rose
+  theme: midnight
 mcp_servers:
   trading212:
     command: uvx
@@ -2506,7 +2507,7 @@ mcp_servers:
     env:
       TRADING212_API_KEY: ${env:TRADING212_API_KEY}
       TRADING212_API_SECRET: ${env:TRADING212_API_SECRET}
-      ENVIRONMENT: demo
+      ENVIRONMENT: live
 web:
   extract_backend: firecrawl
 web_extract:

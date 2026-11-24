@@ -1,0 +1,13 @@
+{
+  "candidates": [
+    {
+      "ticker": "VUSAa_EQ",
+      "isin": "IE00B95DR386",
+      "currency": "EUR",
+      "exchange": "XETR",
+      "price": 535.0,
+      "allocation_pct": 1.0,
+      "rationale": "SOURCE 1 open position (guaranteed tradeable); Vanguard S&P 500 UCITS ETF USD Acc on Euronext Amsterdam — disciplined core US large-cap long, no leverage/CFD/shorts. Accumulating share class; preferred distributing share class not present in supplied research."
+    }
+  ]
+}

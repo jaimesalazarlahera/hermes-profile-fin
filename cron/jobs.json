@@ -9,8 +9,8 @@
         "grounded-citations"
       ],
       "skill": "trading212-portfolio-automation",
-      "model": null,
-      "provider": null,
+      "model": "upstage/solar-mini4:free",
+      "provider": "nous",
       "base_url": null,
       "script": "t212_portfolio_automation_cron.py",
       "no_agent": true,
@@ -21,29 +21,29 @@
         "self"
       ],
       "schedule": {
-        "kind": "interval",
-        "minutes": 720,
-        "display": "every 720m"
+        "kind": "cron",
+        "expr": "*/30 8-18 * * 1-5",
+        "display": "*/30 8-18 * * 1-5"
       },
-      "schedule_display": "every 720m",
+      "schedule_display": "*/30 8-18 * * 1-5",
       "repeat": {
         "times": null,
-        "completed": 8
+        "completed": 103
       },
       "enabled": true,
       "state": "scheduled",
       "paused_at": null,
       "paused_reason": null,
       "created_at": "2026-11-09T21:07:15.975904+00:00",
-      "next_run_at": "2026-11-16T23:40:22.451842+00:00",
-      "last_run_at": "2026-11-16T19:37:33.354529+00:00",
+      "next_run_at": "2026-11-25T08:00:00+00:00",
+      "last_run_at": "2026-11-24T18:34:03.737776+00:00",
       "last_status": "ok",
       "last_error": null,
       "last_delivery_error": null,
       "last_delivery_unverified": null,
       "last_failure": {
-        "at": "2026-11-15T21:24:11.441419+00:00",
-        "detail": "Script exited with code 1\nstderr:\nTraceback (most recent call last):\n  File \"/opt/data/profiles/fin/scripts/t212_portfolio_automation.py\", line 866, in <module>\n    raise SystemExit(main(sys.argv[1:]))\n                     ~~~~^^^^^^^^^^^^^^\n  File \"/opt/data/profiles/fin/scripts/t212_portfolio_automation.py\", line 719, in main\n    report = loop.run_until_complete(run_pipeline(args))\n  File \"/opt/hermes/tools/python-3.14.9+202****1021-linux-x64/lib/python3.14/asyncio/base_events.py\", line 720, in run_until_complete\n    return future.result()\n           ~~~~~~~~~~~~~^^\n  File \"/opt/data/profiles/fin/scripts/t212_portfolio_automation.py\", line 603, in run_pipeline\n    async with stdio_client(server) as (read, write):\n               ~~~~~~~~~~~~^^^^^^^^\n  File \"/opt/hermes/tools/python-3.14.9+202****1021-linux-x64/lib/python3.14/contextlib.py\", line 214, in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hermes/.venv/lib/python3.14/site-packages/mcp/client/stdio.py\", line 126, in stdio_client\n    process = await _create_platform_compatible_process(\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n    )\n    ^\n  File \"/opt/hermes/.venv/lib/python3.14/site-packages/mcp/client/stdio.py\", line 343, in _create_platform_compatible_process\n    return await anyio.open_process(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n    )\n    ^\n  File \"/opt/hermes/.venv/lib/python3.14/site-packages/anyio/_core/_subprocesses.py\", line 184, in open_process\n    return await get_async_backend().open_process(\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<11 lines>...\n    )\n    ^\n  File \"/opt/hermes/.venv/lib/python3.14/site-packages/anyio/_backends/_asyncio.py\", line 2810, in open_process\n    transport, protocol = await loop.subprocess_exec(\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<6 lines>...\n    )\n    ^\n  File \"/opt/hermes/tools/python-3.14.9+202****1021-linux-x64/lib/python3.14/asyncio/base_events.py\", line 1816, in subprocess_exec\n    transport = await self._make_subprocess_transport(\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        protocol, popen_args, False, stdin, stdout, stderr,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        bufsize, **kwargs)\n        ^^^^^^^^^^^^^^^^^^\n  File \"/opt/hermes/tools/python-3.14.9+202****1021-linux-x64/lib/python3.14/asyncio/unix_events.py\", line 203, in _make_subprocess_transport\n    transp = _UnixSubprocessTransport(self, protocol, args, shell,\n                                    stdin, stdout, stderr, bufsize,\n                                    waiter=waiter, extra=extra,\n                                    **kwargs)\n  File \"/opt/hermes/tools/python-3.14.9+202****1021-linux-x64/lib/python3.14/asyncio/base_subprocess.py\", line 39, in __init__\n    self._start(args=args, shell=shell, stdin=stdin, stdout=stdout,\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                stderr=stderr, bufsize=bufsize, **kwargs)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hermes/tools/python-3.14.9+202****1021-linux-x64/lib/python3.14/asyncio/unix_events.py\", line 858, in _start\n    self._proc = subprocess.Popen(\n                 ~~~~~~~~~~~~~~~~^\n        args, shell=shell, stdin=stdin, stdout=stdout, stderr=stderr,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        universal_newlines=False, bufsize=bufsize, **kwargs)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hermes/tools/python-3.14.9+202****1021-linux-x64/lib/python3.14/subprocess.py\", line 1039, in __init__\n    self._execute_child(args, executable, preexec_fn, close_fds,\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                        pass_fds, cwd, env,\n                        ^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n                        gid, gids, uid, umask,\n                        ^^^^^^^^^^^^^^^^^^^^^^\n                        start_new_session, process_group)\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hermes/tools/python-3.14.9+202****1021-linux-x64/lib/python3.14/subprocess.py\", line 1990, in _execute_child\n    raise child_exception_type(errno_num, err_msg, err_filename)\nFileNotFoundError: [Errno 2] No such file or directory: '/opt/data/profiles/fin/.t212venv/bin/trading212-mcp-server'"
+        "at": "2026-11-23T11:34:33.624399+00:00",
+        "detail": "Script exited with code 1\nstderr:\n[t212] selector model: upstage/solar-mini4:free; provider: nous\n  [t212] instrument catalogue: 17166 records (cache)\n[11/23/26 11:30:24] INFO     Processing request of type            server.py:733\n                             CallToolRequest                                    \n                    INFO     HTTP Request: GET                   _client.py:1025\n                             https://live.trading212.com/api/v0/                \n                             equity/account/info \"HTTP/1.1 200                  \n                             OK\"                                                \n                    INFO     Processing request of type            server.py:733\n                             ListToolsRequest                                   \n[11/23/26 11:30:25] INFO     Processing request of type            server.py:733\n                             CallToolRequest                                    \n                    INFO     HTTP Request: GET                   _client.py:1025\n                             https://live.trading212.com/api/v0/                \n                             equity/account/cash \"HTTP/1.1 200                  \n                             OK\"                                                \n                    INFO     Processing request of type            server.py:733\n                             CallToolRequest                                    \n                    INFO     HTTP Request: GET                   _client.py:1025\n                             https://live.trading212.com/api/v0/                \n                             equity/portfolio \"HTTP/1.1 200 OK\"                 \n                    INFO     Processing request of type            server.py:733\n                             CallToolRequest                                    \n                    INFO     HTTP Request: GET                   _client.py:1025\n                             https://live.trading212.com/api/v0/   "
       },
       "failure_streak": 0,
       "deliver": "telegram:9238079416",
@@ -55,12 +55,14 @@
         "1e8348e324d944c7ba454c7af9a48cbe"
       ],
       "last_dispatch": {
-        "scheduled_at": "2026-11-16T10:32:01.030044+00:00",
-        "dispatched_at": "2026-11-16T11:38:25.403550+00:00",
-        "lateness_seconds": 3984.4,
-        "kind": "late"
-      }
+        "scheduled_at": "2026-11-24T18:30:00+00:00",
+        "dispatched_at": "2026-11-24T18:30:59.056703+00:00",
+        "lateness_seconds": 59.1,
+        "kind": "on_time"
+      },
+      "last_delivery_reached_none": null,
+      "timezone": "UTC"
     }
   ],
-  "updated_at": "2026-11-16T19:37:33.357399+00:00"
+  "updated_at": "2026-11-24T18:34:03.744104+00:00"
 }

@@ -7,3 +7,5 @@ User is a personal, low-frequency Trading 212 stock/ETF investor, making purchas
 Trading preferences: no leverage, inverse products, CFDs, shorts, or options-income products unless explicitly changed; prefer diversified EUR-denominated UCITS ETFs; preserve cash and use staged entries; do not hardcode reusable candidates or allocations. For the current periodic-cash strategy, prefer distributing tickers and reject accumulating tickers.
 §
 Recurring Trading 212 runs should summarize balance/cash, positions, orders changed, next actions, research status, and sources. Google Sheets is used for research and order tracking when the relevant workflow calls for it.
+§
+For Trading 212 cron results, user wants the final Telegram message delivered exactly as the rendered report: no preamble, code fence, verification footer, or extra prose.
